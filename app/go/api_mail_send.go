@@ -10,10 +10,47 @@
 package swagger
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
 func POSTMailSend(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+
+	b := &Body{}
+
+	if err := json.NewDecoder(r.Body).Decode(b); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	fmt.Printf("subject=%s\n", b.Subject)
+	for _, c := range b.Content {
+		fmt.Printf("type=%s, value=%s\n", c.Type_, c.Value)
+	}
+
+	for _, p := range b.Personalizations {
+		fmt.Printf("personalized subject=%s\n", p.Subject)
+
+		for _, t := range p.To {
+			fmt.Printf("send to email=%s, name=%s\n", t.Email, t.Name)
+		}
+
+		for _, t := range p.Cc {
+			fmt.Printf("cc to email=%s, name=%s\n", t.Email, t.Name)
+		}
+
+		for _, t := range p.Bcc {
+			fmt.Printf("bcc to email=%s, name=%s\n", t.Email, t.Name)
+		}
+	}
+	fmt.Printf("send from email=%s, name=%s\n", b.From.Email, b.From.Name)
+	fmt.Printf("reply to email=%s, name=%s\n", b.ReplyTo.Email, b.ReplyTo.Name)
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(b); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 }
