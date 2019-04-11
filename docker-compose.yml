@@ -1,0 +1,12 @@
+version: "3.5"
+services:
+  api:
+    build:
+      context: .
+      target: builder
+    ports:
+      - 3000:8080
+    volumes:
+      - ./app:/go/src/github.com/kotalab/sendgrid-mock/app
+    tty: true
+    command: ["go", "run", "app/main.go"]

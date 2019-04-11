@@ -1,0 +1,491 @@
+---
+swagger: "2.0"
+info:
+  description: "# The SendGrid Web API V3 Documentation\n\nThis is the entirety of\
+    \ the documented v3 endpoints. We have updated all the descriptions, parameters,\
+    \ requests, and responses.\n\n## Authentication \n\nEvery endpoint requires Authentication\
+    \ in the form of an Authorization Header:\n\nAuthorization: Bearer API_KEY"
+  version: "3.0"
+  title: "SendGrid v3 API Documentation"
+host: "api.sendgrid.com"
+basePath: "/v3"
+schemes:
+- "http"
+- "https"
+paths:
+  /mail/send:
+    post:
+      tags:
+      - "Mail Send"
+      summary: "v3 Mail Send"
+      description: "This endpoint allows you to send email over SendGrid’s v3 Web\
+        \ API, the most recent version of our API. If you are looking for documentation\
+        \ about the v2 Mail Send endpoint, please see our [v2 API Reference](https://sendgrid.com/docs/API_Reference/Web_API/mail.html).\n\
+        \n* Top level parameters are referred to as \"global\".\n* Individual fields\
+        \ within the personalizations array will override any other global, or “message\
+        \ level”, parameters that are defined outside of personalizations.\n \n**SendGrid\
+        \ provides libraries to help you quickly and easily integrate with the v3\
+        \ Web API in 7 different languages: [C#](https://github.com/sendgrid/sendgrid-csharp),\
+        \ [Go](https://github.com/sendgrid/sendgrid-go), [Java](https://github.com/sendgrid/sendgrid-java),\
+        \ [Node JS](https://github.com/sendgrid/sendgrid-nodejs), [PHP](https://github.com/sendgrid/sendgrid-php),\
+        \ [Python](https://github.com/sendgrid/sendgrid-python), and [Ruby](https://github.com/sendgrid/sendgrid-ruby).**\n\
+        \n\nFor more detailed information about how to use the v3 Mail Send endpoint,\
+        \ please visit our [Classroom](https://sendgrid.com/docs/Classroom/Send/v3_Mail_Send/index.html)."
+      operationId: "POST_mail-send"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/body"
+        x-exportParamName: "Body"
+      responses:
+        202:
+          description: ""
+          schema:
+            type: "null"
+        400:
+          description: ""
+          schema:
+            $ref: "#/definitions/errors"
+        401:
+          description: ""
+          schema:
+            $ref: "#/definitions/errors"
+        413:
+          description: ""
+          schema:
+            $ref: "#/definitions/errors"
+      security:
+      - Authorization: []
+securityDefinitions:
+  Authorization:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+definitions:
+  email_object:
+    type: "object"
+    required:
+    - "email"
+    properties:
+      email:
+        type: "string"
+        format: "email"
+      name:
+        type: "string"
+        description: "The name of the person to whom you are sending an email."
+    title: "Email Object"
+  errors:
+    type: "object"
+    properties:
+      errors:
+        type: "array"
+        items:
+          $ref: "#/definitions/errors_errors"
+    title: "Error Schema"
+  mailsend_personalizations:
+    required:
+    - "to"
+    properties:
+      to:
+        type: "array"
+        description: "An array of recipients. Each object within this array may contain\
+          \ the name, but must always contain the email, of a recipient."
+        items:
+          $ref: "#/definitions/email_object"
+        maxItems: 1000
+        minItems: 1
+      cc:
+        type: "array"
+        description: "An array of recipients who will receive a copy of your email.\
+          \ Each object within this array may contain the name, but must always contain\
+          \ the email, of a recipient."
+        items:
+          $ref: "#/definitions/email_object"
+        maxItems: 1000
+      bcc:
+        type: "array"
+        description: "An array of recipients who will receive a blind carbon copy\
+          \ of your email. Each object within this array may contain the name, but\
+          \ must always contain the email, of a recipient."
+        items:
+          $ref: "#/definitions/email_object"
+        maxItems: 1000
+      subject:
+        type: "string"
+        description: "The subject of your email. Char length requirements, according\
+          \ to the RFC - http://stackoverflow.com/questions/1592291/what-is-the-email-subject-length-limit#answer-1592310"
+        minLength: 1
+      headers:
+        type: "object"
+        description: "A collection of JSON key/value pairs allowing you to specify\
+          \ specific handling instructions for your email. You may not overwrite the\
+          \ following headers: x-sg-id, x-sg-eid, received, dkim-signature, Content-Type,\
+          \ Content-Transfer-Encoding, To, From, Subject, Reply-To, CC, BCC"
+        properties: {}
+      substitutions:
+        type: "object"
+        description: "A collection of key/value pairs following the pattern \"substitution_tag\"\
+          :\"value to substitute\". All are assumed to be strings. These substitutions\
+          \ will apply to the text and html content of the body of your email, in\
+          \ addition to the `subject` and `reply-to` parameters."
+        properties: {}
+      custom_args:
+        type: "object"
+        description: "Values that are specific to this personalization that will be\
+          \ carried along with the email and its activity data. Substitutions will\
+          \ not be made on custom arguments, so any string that is entered into this\
+          \ parameter will be assumed to be the custom argument that you would like\
+          \ to be used. May not exceed 10,000 bytes."
+        properties: {}
+      send_at:
+        type: "integer"
+        description: "A unix timestamp allowing you to specify when you want your\
+          \ email to be delivered. Scheduling more than 72 hours in advance is forbidden."
+  mailsend_content:
+    required:
+    - "type"
+    - "value"
+    properties:
+      type:
+        type: "string"
+        description: "The mime type of the content you are including in your email.\
+          \ For example, “text/plain” or “text/html”."
+        minLength: 1
+      value:
+        type: "string"
+        description: "The actual content of the specified mime type that you are including\
+          \ in your email."
+        minLength: 1
+  mailsend_attachments:
+    required:
+    - "content"
+    - "filename"
+    properties:
+      content:
+        type: "string"
+        description: "The Base64 encoded content of the attachment."
+        minLength: 1
+      type:
+        type: "string"
+        description: "The mime type of the content you are attaching. For example,\
+          \ “text/plain” or “text/html”."
+        minLength: 1
+      filename:
+        type: "string"
+        description: "The filename of the attachment."
+      disposition:
+        type: "string"
+        description: "The content-disposition of the attachment specifying how you\
+          \ would like the attachment to be displayed. For example, “inline” results\
+          \ in the attached file being displayed automatically within the message\
+          \ while “attachment” results in the attached file requiring some action\
+          \ to be taken before it is displayed (e.g. opening or downloading the file)."
+        default: "attachment"
+        enum:
+        - "inline"
+        - "attachment"
+      content_id:
+        type: "string"
+        description: "The content id for the attachment. This is used when the disposition\
+          \ is set to “inline” and the attachment is an image, allowing the file to\
+          \ be displayed within the body of your email."
+  mailsend_asm:
+    required:
+    - "group_id"
+    properties:
+      group_id:
+        type: "integer"
+        description: "The unsubscribe group to associate with this email."
+      groups_to_display:
+        type: "array"
+        description: "An array containing the unsubscribe groups that you would like\
+          \ to be displayed on the unsubscribe preferences page."
+        items:
+          type: "integer"
+        maxItems: 25
+    description: "An object allowing you to specify how to handle unsubscribes."
+  mailsend_mail_settings_bcc:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      email:
+        type: "string"
+        format: "email"
+        description: "The email address that you would like to receive the BCC."
+    description: "This allows you to have a blind carbon copy automatically sent to\
+      \ the specified email address for every email that is sent."
+  mailsend_mail_settings_bypass_list_management:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+    description: "Allows you to bypass all unsubscribe groups and suppressions to\
+      \ ensure that the email is delivered to every single recipient. This should\
+      \ only be used in emergencies when it is absolutely necessary that every recipient\
+      \ receives your email."
+  mailsend_mail_settings_footer:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      text:
+        type: "string"
+        description: "The plain text content of your footer."
+      html:
+        type: "string"
+        description: "The HTML content of your footer."
+    description: "The default footer that you would like included on every email."
+  mailsend_mail_settings_sandbox_mode:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+    description: "This allows you to send a test email to ensure that your request\
+      \ body is valid and formatted correctly."
+  mailsend_mail_settings_spam_check:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      threshold:
+        type: "integer"
+        description: "The threshold used to determine if your content qualifies as\
+          \ spam on a scale from 1 to 10, with 10 being most strict, or most likely\
+          \ to be considered as spam."
+        minimum: 1
+        maximum: 10
+      post_to_url:
+        type: "string"
+        description: "An Inbound Parse URL that you would like a copy of your email\
+          \ along with the spam report to be sent to."
+    description: "This allows you to test the content of your email for spam."
+  mailsend_mail_settings:
+    properties:
+      bcc:
+        $ref: "#/definitions/mailsend_mail_settings_bcc"
+      bypass_list_management:
+        $ref: "#/definitions/mailsend_mail_settings_bypass_list_management"
+      footer:
+        $ref: "#/definitions/mailsend_mail_settings_footer"
+      sandbox_mode:
+        $ref: "#/definitions/mailsend_mail_settings_sandbox_mode"
+      spam_check:
+        $ref: "#/definitions/mailsend_mail_settings_spam_check"
+    description: "A collection of different mail settings that you can use to specify\
+      \ how you would like this email to be handled."
+  mailsend_tracking_settings_click_tracking:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      enable_text:
+        type: "boolean"
+        description: "Indicates if this setting should be included in the text/plain\
+          \ portion of your email."
+    description: "Allows you to track whether a recipient clicked a link in your email."
+  mailsend_tracking_settings_open_tracking:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      substitution_tag:
+        type: "string"
+        description: "Allows you to specify a substitution tag that you can insert\
+          \ in the body of your email at a location that you desire. This tag will\
+          \ be replaced by the open tracking pixel."
+    description: "Allows you to track whether the email was opened or not, but including\
+      \ a single pixel image in the body of the content. When the pixel is loaded,\
+      \ we can log that the email was opened."
+  mailsend_tracking_settings_subscription_tracking:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      text:
+        type: "string"
+        description: "Text to be appended to the email, with the subscription tracking\
+          \ link. You may control where the link is by using the tag <% %>"
+      html:
+        type: "string"
+        description: "HTML to be appended to the email, with the subscription tracking\
+          \ link. You may control where the link is by using the tag <% %>"
+      substitution_tag:
+        type: "string"
+        description: "A tag that will be replaced with the unsubscribe URL. for example:\
+          \ [unsubscribe_url]. If this parameter is used, it will override both the\
+          \ `text` and `html` parameters. The URL of the link will be placed at the\
+          \ substitution tag’s location, with no additional formatting."
+    description: "Allows you to insert a subscription management link at the bottom\
+      \ of the text and html bodies of your email. If you would like to specify the\
+      \ location of the link within your email, you may use the substitution_tag."
+  mailsend_tracking_settings_ganalytics:
+    properties:
+      enable:
+        type: "boolean"
+        description: "Indicates if this setting is enabled."
+      utm_source:
+        type: "string"
+        description: "Name of the referrer source. (e.g. Google, SomeDomain.com, or\
+          \ Marketing Email)"
+      utm_medium:
+        type: "string"
+        description: "Name of the marketing medium. (e.g. Email)"
+      utm_term:
+        type: "string"
+        description: "Used to identify any paid keywords.\t"
+      utm_content:
+        type: "string"
+        description: "Used to differentiate your campaign from advertisements.\t"
+      utm_campaign:
+        type: "string"
+        description: "The name of the campaign.\t"
+    description: "Allows you to enable tracking provided by Google Analytics."
+  mailsend_tracking_settings:
+    properties:
+      click_tracking:
+        $ref: "#/definitions/mailsend_tracking_settings_click_tracking"
+      open_tracking:
+        $ref: "#/definitions/mailsend_tracking_settings_open_tracking"
+      subscription_tracking:
+        $ref: "#/definitions/mailsend_tracking_settings_subscription_tracking"
+      ganalytics:
+        $ref: "#/definitions/mailsend_tracking_settings_ganalytics"
+    description: "Settings to determine how you would like to track the metrics of\
+      \ how your recipients interact with your email."
+  body:
+    type: "object"
+    required:
+    - "content"
+    - "from"
+    - "personalizations"
+    - "subject"
+    properties:
+      personalizations:
+        type: "array"
+        description: "An array of messages and their metadata. Each object within\
+          \ personalizations can be thought of as an envelope - it defines who should\
+          \ receive an individual message and how that message should be handled."
+        items:
+          $ref: "#/definitions/mailsend_personalizations"
+        maxItems: 1000
+      from:
+        $ref: "#/definitions/email_object"
+      reply_to:
+        $ref: "#/definitions/email_object"
+      subject:
+        type: "string"
+        description: "The global, or “message level”, subject of your email. This\
+          \ may be overridden by personalizations[x].subject."
+        minLength: 1
+      content:
+        type: "array"
+        description: "An array in which you may specify the content of your email.\
+          \ You can include multiple mime types of content, but you must specify at\
+          \ least one mime type. To include more than one mime type, simply add another\
+          \ object to the array containing the `type` and `value` parameters."
+        items:
+          $ref: "#/definitions/mailsend_content"
+      attachments:
+        type: "array"
+        description: "An array of objects in which you can specify any attachments\
+          \ you want to include."
+        items:
+          $ref: "#/definitions/mailsend_attachments"
+      template_id:
+        type: "string"
+        description: "The id of a template that you would like to use. If you use\
+          \ a template that contains a subject and content (either text or html),\
+          \ you do not need to specify those at the personalizations nor message level. "
+      sections:
+        type: "object"
+        description: "An object of key/value pairs that define block sections of code\
+          \ to be used as substitutions."
+        properties: {}
+      headers:
+        type: "object"
+        description: "An object containing key/value pairs of header names and the\
+          \ value to substitute for them. You must ensure these are properly encoded\
+          \ if they contain unicode characters. Must not be one of the reserved headers."
+        properties: {}
+      categories:
+        type: "array"
+        description: "An array of category names for this message. Each category name\
+          \ may not exceed 255 characters. "
+        uniqueItems: true
+        items:
+          type: "string"
+          maxLength: 255
+        maxItems: 10
+      custom_args:
+        type: "object"
+        description: "Values that are specific to the entire send that will be carried\
+          \ along with the email and its activity data. Substitutions will not be\
+          \ made on custom arguments, so any string that is entered into this parameter\
+          \ will be assumed to be the custom argument that you would like to be used.\
+          \ This parameter is overridden by personalizations[x].custom_args if that\
+          \ parameter has been defined. Total custom args size may not exceed 10,000\
+          \ bytes."
+        properties: {}
+      send_at:
+        type: "integer"
+        description: "A unix timestamp allowing you to specify when you want your\
+          \ email to be delivered. This may be overridden by the personalizations[x].send_at\
+          \ parameter. Scheduling more ta 72 hours in advance is forbidden."
+      batch_id:
+        type: "string"
+        description: "This ID represents a batch of emails to be sent at the same\
+          \ time. Including a batch_id in your request allows you include this email\
+          \ in that batch, and also enables you to cancel or pause the delivery of\
+          \ that batch. For more information, see https://sendgrid.com/docs/API_Reference/Web_API_v3/cancel_schedule_send.html "
+      asm:
+        $ref: "#/definitions/mailsend_asm"
+      ip_pool_name:
+        type: "string"
+        description: "The IP Pool that you would like to send this email from."
+        minLength: 2
+        maxLength: 64
+      mail_settings:
+        $ref: "#/definitions/mailsend_mail_settings"
+      tracking_settings:
+        $ref: "#/definitions/mailsend_tracking_settings"
+    example:
+      personalizations:
+      - to:
+        - email: "john.doe@example.com"
+          name: "John Doe"
+        subject: "Hello, World!"
+      from:
+        email: "sam.smith@example.com"
+        name: "Sam Smith"
+      reply_to:
+        email: "sam.smith@example.com"
+        name: "Sam Smith"
+      subject: "Hello, World!"
+      content:
+      - type: "text/html"
+        value: "<html><p>Hello, world!</p></html>"
+  errors_errors:
+    properties:
+      message:
+        type: "string"
+        description: "The message the API caller will receive."
+parameters:
+  trait:authorizationHeader:Authorization:
+    name: "Authorization"
+    in: "header"
+    required: true
+    type: "string"
+    default: "Bearer <<apiKey>>"
+  trait:onBehalfOfSubuser:on-behalf-of:
+    name: "on-behalf-of"
+    in: "header"
+    required: false
+    type: "string"
+    default: "subuser_<user_name>"
