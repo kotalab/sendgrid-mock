@@ -20,7 +20,7 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "github.com/kotalab/sendgrid-mock/app/go"
+	sw "github.com/kotalab/sendgrid-mock/go"
 )
 
 func main() {
