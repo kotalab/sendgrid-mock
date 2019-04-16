@@ -13,6 +13,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
+
 	// WARNING!
 	// Change this to a fully-qualified import path
 	// once you place this file into your project.
@@ -25,6 +27,10 @@ import (
 
 func main() {
 	log.Printf("Server started")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	router := sw.NewRouter()
 
