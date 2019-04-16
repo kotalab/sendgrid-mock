@@ -1,5 +1,7 @@
 FROM mercari/appengine-go:1.11-alpine as builder
 
-COPY . .
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 
-RUN go get
+COPY . .
