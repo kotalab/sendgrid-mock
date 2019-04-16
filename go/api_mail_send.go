@@ -13,12 +13,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	types "github.com/kotalab/sendgrid-mock/go/generated_type"
 )
 
 func POSTMailSend(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	b := &Body{}
+	b := &types.Body{}
 
 	if err := json.NewDecoder(r.Body).Decode(b); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
